@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>空白の懺悔室 - Confessional of the Blank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0a0e;
+      --bg-panel: #141219;
+      --bg-card: #1c1923;
+      --gold: #c9a961;
+      --gold-dim: #7d6738;
+      --parchment: #e8dcc5;
+      --crimson: #9e1b1b;
+      --crimson-bright: #e03e3e;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--parchment);
+      font-family: 'Noto Serif JP', Georgia, serif;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(201, 169, 97, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 15% 85%, rgba(158, 27, 27, 0.07) 0%, transparent 50%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .font-cinzel {
+      font-family: 'Cinzel', Georgia, serif;
+    }
+
+    .gothic-border {
+      border: 1px solid rgba(201, 169, 97, 0.28);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .gothic-card {
+      background: linear-gradient(145deg, #1a1722 0%, #121017 100%);
+      border: 1px solid rgba(201, 169, 97, 0.22);
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .gothic-card:hover {
+      border-color: rgba(201, 169, 97, 0.65);
+      box-shadow: 0 0 15px rgba(201, 169, 97, 0.15);
+    }
+
+    /* Flickering Candle Animation */
+    @keyframes flicker {
+      0%, 100% { transform: scaleY(1) scaleX(1) rotate(-1deg); opacity: 0.95; }
+      25% { transform: scaleY(1.06) scaleX(0.96) rotate(1deg); opacity: 1; }
+      50% { transform: scaleY(0.95) scaleX(1.03) rotate(-2deg); opacity: 0.88; }
+      75% { transform: scaleY(1.04) scaleX(0.98) rotate(1.5deg); opacity: 0.98; }
+    }
+
+    .candle-flame {
+      transform-origin: bottom center;
+      animation: flicker 2.4s infinite ease-in-out;
+      filter: drop-shadow(0 0 8px rgba(255, 175, 50, 0.85));
+    }
+
+    /* Shake & Crimson Flash on Mistake */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    .animate-shake {
+      animation: shake 0.45s ease-in-out;
+    }
+
+    @keyframes crimsonFlash {
+      0% { background-color: rgba(158, 27, 27, 0.38); }
+      100% { background-color: transparent; }
+    }
+
+    .flash-crimson {
+      animation: crimsonFlash 0.8s ease-out;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d0c11;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3d3326;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #c9a961;
+    }
+
+    /* Blank Slot Pulse */
+    @keyframes pulseGold {
+      0%, 100% { border-color: rgba(201, 169, 97, 0.45); box-shadow: inset 0 0 10px rgba(201, 169, 97, 0.08); }
+      50% { border-color: rgba(201, 169, 97, 0.95); box-shadow: inset 0 0 18px rgba(201, 169, 97, 0.22); }
+    }
+
+    .slot-active {
+      animation: pulseGold 2s infinite ease-in-out;
+      background-color: rgba(201, 169, 97, 0.08);
+    }
+
+    .eliminated-piece {
+      opacity: 0.35;
+      text-decoration: line-through;
+      border-color: rgba(158, 27, 27, 0.4) !important;
+      background: #0e0c12 !important;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-[#c9a961] selection:text-[#0b0a0e]">
+
+  <!-- Flash Overlay -->
+  <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50"></div>
+
+  <!-- TITLE SCREEN -->
+  <div id="screen-title" class="min-h-screen flex flex-col items-center justify-center p-6 text-center relative">
+    <div class="max-w-2xl w-full gothic-border bg-[#121017]/90 rounded-2xl p-8 md:p-12 backdrop-blur-md">
+      <!-- Gothic Rose Window / Cross SVG -->
+      <div class="w-20 h-20 mx-auto mb-6 text-[#c9a961]">
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full drop-shadow-[0_0_12px_rgba(201,169,97,0.4)]">
+          <circle cx="50" cy="50" r="44" />
+          <circle cx="50" cy="50" r="36" stroke-dasharray="3 3" />
+          <path d="M50 6 L50 94 M6 50 L94 50" />
+          <path d="M19 19 L81 81 M81 19 L19 81" stroke-opacity="0.5" />
+          <circle cx="50" cy="50" r="12" fill="#121017" />
+          <path d="M50 42 L50 58 M44 47 L56 47" stroke-width="2" />
+        </svg>
+      </div>
+
+      <p class="font-cinzel text-xs md:text-sm tracking-[0.35em] text-[#c9a961]/80 uppercase mb-2">
+        Confessional of the Blank
+      </p>
+      <h1 class="text-3xl md:text-5xl font-bold tracking-wider text-[#e8dcc5] mb-4">
+        空白の懺悔室
+      </h1>
+      <div class="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#c9a961] to-transparent mx-auto mb-6"></div>
+      <p class="text-sm md:text-base text-[#e8dcc5]/80 leading-relaxed mb-8 max-w-lg mx-auto">
+        精神汚染に蝕まれた信者たちは、嘘をついているのではない。<br class="hidden sm:inline">
+        耐え難い現実によって<span class="text-[#c9a961] font-semibold">「記憶の一部」</span>が抜け落ちているのだ。<br>
+        時間・痕跡・街の記録から空白を補完し、5夜の救済を成し遂げよ。
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="game.startNewRun()" class="px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#c9a961] to-[#9c7d3c] text-[#0b0a0e] font-bold tracking-widest hover:brightness-110 transition shadow-[0_0_20px_rgba(201,169,97,0.35)] cursor-pointer">
+          懺悔室の扉を開く
+        </button>
+        <button onclick="ui.toggleModal('modal-howto', true)" class="px-6 py-3.5 rounded-xl border border-[#c9a961]/40 text-[#e8dcc5] hover:bg-[#c9a961]/10 transition tracking-wider cursor-pointer">
+          手引書（遊び方）
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GAME SCREEN -->
+  <div id="screen-game" class="hidden min-h-screen flex flex-col">
+    <!-- Top Status Bar -->
+    <header class="sticky top-0 z-30 bg-[#0e0c13]/95 backdrop-blur-md border-b border-[#c9a961]/25 px-4 py-2.5">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        <!-- Day & Title -->
+        <div class="flex items-center gap-3">
+          <div class="px-3 py-1 rounded-lg bg-[#c9a961]/15 border border-[#c9a961]/40 text-[#c9a961] font-bold text-sm md:text-base">
+            <span id="hud-day">第 1 夜</span> <span class="text-xs opacity-75">/ 5</span>
+          </div>
+          <span id="hud-route-badge" class="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full bg-[#1f1b29] text-[#e8dcc5]/80 border border-[#c9a961]/20">
+            静かな懺悔
+          </span>
+        </div>
+
+        <!-- Candles (Life) -->
+        <div class="flex items-center gap-2 bg-[#16131d] px-3.5 py-1.5 rounded-xl border border-[#c9a961]/20" title="蝋燭の灯火（正気度・ライフ）">
+          <span class="text-xs text-[#e8dcc5]/70 mr-1 hidden sm:inline">灯火:</span>
+          <div id="hud-candles" class="flex items-center gap-2"></div>
+        </div>
+
+        <!-- Relics & Curses & Manual Button -->
+        <div class="flex items-center gap-2">
+          <div id="hud-relics" class="flex items-center gap-1.5"></div>
+          <div id="hud-curses" class="flex items-center gap-1.5"></div>
+          <button onclick="ui.toggleModal('modal-howto', true)" class="ml-1 px-3 py-1.5 rounded-lg border border-[#c9a961]/35 text-xs text-[#c9a961] hover:bg-[#c9a961]/15 transition cursor-pointer">
+            手引書
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Tab Switcher (Visible only on < lg) -->
+    <div class="lg:hidden flex border-b border-[#c9a961]/20 bg-[#121017] text-xs font-semibold">
+      <button onclick="ui.switchMobileTab('investigate')" id="tab-btn-investigate" class="flex-1 py-3 text-center border-b-2 border-[#c9a961] text-[#c9a961]">
+        懺悔と推論
+      </button>
+      <button onclick="ui.switchMobileTab('records')" id="tab-btn-records" class="flex-1 py-3 text-center border-b-2 border-transparent text-[#e8dcc5]/60">
+        地図・新聞・救済書
+      </button>
+    </div>
+
+    <!-- Main 3-Column Workspace -->
+    <main id="game-workspace" class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
+      
+      <!-- LEFT COLUMN: Penitent & Observation (3 cols on lg) -->
+      <section id="panel-observation" class="lg:col-span-3 flex flex-col gap-4">
+        <div class="gothic-border bg-[#141219] rounded-2xl p-4 md:p-5">
+          <div class="flex items-center gap-3.5 mb-4 pb-3 border-b border-[#c9a961]/20">
+            <div id="penitent-avatar" class="w-14 h-14 rounded-xl bg-[#1f1b29] border border-[#c9a961]/40 flex items-center justify-center text-[#c9a961] shrink-0">
+              <!-- SVG injected dynamically -->
+            </div>
+            <div>
+              <div class="text-[11px] text-[#c9a961] tracking-widest uppercase">告解者</div>
+              <h2 id="penitent-name" class="text-lg font-bold text-[#e8dcc5] leading-snug">花嫁のヴェールを被った女</h2>
+              <p id="penitent-subtitle" class="text-xs text-[#e8dcc5]/60 mt-0.5">到着時刻：19時00分</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-bold tracking-widest text-[#c9a961] uppercase flex items-center gap-1.5">
+              <span>👁</span> 神父の観察メモ
+            </h3>
+            <span class="text-[11px] text-[#e8dcc5]/50">客観的事実</span>
+          </div>
+
+          <ul id="observation-list" class="space-y-2.5 text-sm">
+            <!-- Observation items injected here -->
+          </ul>
+        </div>
+
+        <!-- Active Relics / Curses Summary Box (Desktop helper) -->
+        <div class="hidden lg:block gothic-border bg-[#141219]/80 rounded-2xl p-4">
+          <h3 class="text-xs font-bold tracking-widest text-[#c9a961] mb-2">所持中の聖遺物・呪い</h3>
+          <div id="sidebar-modifiers" class="space-y-2 text-xs text-[#e8dcc5]/80">
+            <p class="text-[#e8dcc5]/40 italic">まだ聖遺物を所持していません</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER COLUMN: Testimony Timeline & Puzzle Pieces (5 cols on lg) -->
+      <section id="panel-timeline" class="lg:col-span-5 flex flex-col gap-4">
+        <!-- Testimony Box -->
+        <div class="gothic-border bg-[#141219] rounded-2xl p-4 md:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold tracking-widest text-[#c9a961] uppercase">
+              📜 信者の証言タイムライン
+            </h3>
+            <span class="text-[11px] text-[#e8dcc5]/60">空白をタップして記憶を補完</span>
+          </div>
+
+          <!-- Quote Intro -->
+          <p id="penitent-quote" class="text-xs md:text-sm italic text-[#e8dcc5]/80 bg-[#0e0c12] p-3 rounded-xl border border-[#c9a961]/15 mb-4 leading-relaxed">
+            「神父様、今夜は私たちの結婚式なのです……」
+          </p>
+
+          <!-- Timeline Steps -->
+          <div id="timeline-container" class="space-y-2.5 relative">
+            <!-- Timeline blocks & blanks injected here -->
+          </div>
+        </div>
+
+        <!-- Candidate Memory Pieces -->
+        <div class="gothic-border bg-[#141219] rounded-2xl p-4 md:p-5">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold tracking-widest text-[#c9a961] uppercase">
+              🧩 記憶の断片（候補ピース）
+            </h3>
+            <span class="text-[11px] text-[#e8dcc5]/50">「×」で消去法メモ</span>
+          </div>
+          <p class="text-[11px] text-[#e8dcc5]/60 mb-3">
+            時間や証拠から導かれるピースを選択中の空白に当てはめてください。
+          </p>
+          <div id="pieces-pool" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <!-- Candidate pieces injected here -->
+          </div>
+        </div>
+
+        <!-- Salvation Ritual Selection & Confirm -->
+        <div class="gothic-border bg-[#141219] rounded-2xl p-4 md:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold tracking-widest text-[#c9a961] uppercase">
+              🕯 救済の儀式を選択
+            </h3>
+            <span class="text-[11px] text-[#e8dcc5]/60">右の「救済書」を参照</span>
+          </div>
+
+          <div id="ritual-options" class="grid grid-cols-2 gap-2 mb-4">
+            <!-- 4 Ritual buttons injected here -->
+          </div>
+
+          <div id="feedback-banner" class="hidden mb-3 p-3 rounded-xl text-xs leading-relaxed border"></div>
+
+          <button id="btn-confirm" onclick="game.submitDeduction()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#8c6d2e] via-[#c9a961] to-[#8c6d2e] text-[#0b0a0e] font-bold tracking-widest text-sm md:text-base hover:brightness-110 transition shadow-[0_0_15px_rgba(201,169,97,0.25)] cursor-pointer">
+            祈りを捧げる（確定）
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Church Records (Map, Gazette, Salvation Guide) (4 cols on lg) -->
+      <section id="panel-records" class="hidden lg:flex lg:col-span-4 flex-col gap-4">
+        <div class="gothic-border bg-[#141219] rounded-2xl p-4 md:p-5 flex-1 flex flex-col">
+          <!-- Sub-tabs for Records -->
+          <div class="flex gap-1 bg-[#0d0c11] p-1 rounded-xl border border-[#c9a961]/20 mb-4 text-xs">
+            <button onclick="ui.switchRecordTab('map')" id="rec-tab-map" class="flex-1 py-2 rounded-lg font-bold bg-[#c9a961]/20 text-[#c9a961] transition cursor-pointer">
+              地理と時間
+            </button>
+            <button onclick="ui.switchRecordTab('news')" id="rec-tab-news" class="flex-1 py-2 rounded-lg font-semibold text-[#e8dcc5]/60 hover:text-[#e8dcc5] transition cursor-pointer">
+              本日の新聞
+            </button>
+            <button onclick="ui.switchRecordTab('guide')" id="rec-tab-guide" class="flex-1 py-2 rounded-lg font-semibold text-[#e8dcc5]/60 hover:text-[#e8dcc5] transition cursor-pointer">
+              救済マニュアル
+            </button>
+          </div>
+
+          <!-- Record Content Area -->
+          <div id="record-content-map" class="space-y-3 text-xs md:text-sm overflow-y-auto">
+            <div class="p-3 rounded-xl bg-[#0e0c12] border border-[#c9a961]/20">
+              <h4 class="font-bold text-[#c9a961] mb-2 flex items-center gap-1.5">
+                <span>🧭</span> 教会周辺の移動時間（基本）
+              </h4>
+              <ul class="space-y-1.5 text-[#e8dcc5]/85">
+                <li class="flex justify-between border-b border-white/5 pb-1">
+                  <span>市街・自宅 ⇔ 街の教会</span>
+                  <span class="font-bold text-[#c9a961]">徒歩 15分</span>
+                </li>
+                <li class="flex justify-between border-b border-white/5 pb-1">
+                  <span>市街・自宅 ⇔ 丘の古い礼拝堂</span>
+                  <span class="font-bold text-[#c9a961]">徒歩 30分</span>
+                </li>
+                <li class="flex justify-between border-b border-white/5 pb-1">
+                  <span>森の川辺への迂回（往復ロス）</span>
+                  <span class="font-bold text-[#c9a961]">＋30分</span>
+                </li>
+                <li class="flex justify-between border-b border-white/5 pb-1">
+                  <span>街の火葬場への迂回（往復ロス）</span>
+                  <span class="font-bold text-[#c9a961]">＋30分</span>
+                </li>
+                <li class="flex justify-between border-b border-white/5 pb-1">
+                  <span>古い時計塔への立ち寄り</span>
+                  <span class="font-bold text-[#c9a961]">＋20分</span>
+                </li>
+                <li class="flex justify-between">
+                  <span>薬草園・墓地への立ち寄り</span>
+                  <span class="font-bold text-[#c9a961]">＋25分</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-3 rounded-xl bg-[#0e0c12] border border-[#c9a961]/20">
+              <h4 class="font-bold text-[#c9a961] mb-2">📍 各地点の物理的特徴</h4>
+              <ul class="space-y-2 text-xs text-[#e8dcc5]/80 leading-relaxed">
+                <li><strong class="text-[#e8dcc5]">街の教会：</strong> あなたが守る唯一の現役の教会。舗装された坂道の上にある。</li>
+                <li><strong class="text-[#e8dcc5]">丘の古い礼拝堂：</strong> 10年前の大火事で全焼し、現在は立ち入り禁止の廃墟。</li>
+                <li><strong class="text-[#e8dcc5]">森の川辺：</strong> ぬかるんだ川底の泥がある。純白の「月見草」はここにしか咲かない。</li>
+                <li><strong class="text-[#e8dcc5]">街の火葬場：</strong> 常に煤（すす）と黒い灰が舞っている。</li>
+                <li><strong class="text-[#e8dcc5]">古い時計塔：</strong> 17時45分で大時計の針が止まったまま動かない。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div id="record-content-news" class="hidden space-y-3 text-xs md:text-sm overflow-y-auto">
+            <div class="p-3.5 rounded-xl bg-[#1a1622] border border-[#c9a961]/30">
+              <div class="flex items-center justify-between border-b border-[#c9a961]/20 pb-2 mb-2.5">
+                <span class="font-cinzel text-xs text-[#c9a961]">THE DAILY CHRONICLE</span>
+                <span id="news-day-label" class="text-xs font-bold text-[#e8dcc5]">第1夜の記録</span>
+              </div>
+              <ul id="daily-news-list" class="space-y-2.5 text-[#e8dcc5]/90 leading-relaxed">
+                <!-- Dynamic daily news injected here -->
+              </ul>
+            </div>
+          </div>
+
+          <div id="record-content-guide" class="hidden space-y-2.5 text-xs overflow-y-auto">
+            <p class="text-[#e8dcc5]/70 mb-2">
+              欠落した記憶から「なぜ心を閉ざしたか（汚染の原因）」を特定し、対応する儀式を選んでください。
+            </p>
+            <div class="p-3 rounded-xl bg-[#0e0c12] border border-[#c9a961]/25">
+              <div class="font-bold text-[#c9a961] text-sm mb-1">① 喪失の拒絶 → 【鎮魂の祈り】</div>
+              <p class="text-[#e8dcc5]/80">恋人や家族の死・別れを受け入れられず、まだ生きているかのように記憶を書き換えている状態。</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0e0c12] border border-[#c9a961]/25">
+              <div class="font-bold text-[#c9a961] text-sm mb-1">② 罪悪感の隠蔽 → 【贖罪の聖水】</div>
+              <p class="text-[#e8dcc5]/80">自らが犯した殺人・窃盗・裏切りなどの過ちを脳から消去し、無実の被害者と思い込んでいる状態。</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0e0c12] border border-[#c9a961]/25">
+              <div class="font-bold text-[#c9a961] text-sm mb-1">③ 禁忌への恐怖 → 【忘却の香炉】</div>
+              <p class="text-[#e8dcc5]/80">禁書・怪異・呪物など、人の精神が耐えられない恐ろしいものを目撃し、防衛本能で記憶を封印した状態。</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#0e0c12] border border-[#c9a961]/25">
+              <div class="font-bold text-[#c9a961] text-sm mb-1">④ 狂信の妄執 → 【断罪の鐘】</div>
+              <p class="text-[#e8dcc5]/80">誤った使命感や呪いの儀式に憑りつかれ、自他の破滅を「神聖な行い」と錯覚している状態。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- SALVATION STORY MODAL (Between Day & Draft) -->
+  <div id="modal-salvation" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-xl w-full gothic-border bg-[#141219] rounded-2xl p-6 md:p-8 text-center">
+      <div class="text-xs font-cinzel tracking-[0.3em] text-[#c9a961] mb-2">SALVATION COMPLETE</div>
+      <h2 id="salvation-title" class="text-2xl font-bold text-[#e8dcc5] mb-4">記憶の返還と救済</h2>
+      <div class="w-24 h-[1px] bg-[#c9a961]/50 mx-auto mb-5"></div>
+      <p id="salvation-text" class="text-sm md:text-base text-[#e8dcc5]/90 leading-relaxed mb-6 text-left bg-[#0d0c11] p-4 rounded-xl border border-[#c9a961]/20">
+        <!-- Story explanation -->
+      </p>
+      <button onclick="game.proceedAfterSalvation()" class="px-8 py-3 rounded-xl bg-[#c9a961] text-[#0b0a0e] font-bold tracking-wider hover:brightness-110 transition cursor-pointer">
+        次の夜へ備える
+      </button>
+    </div>
+  </div>
+
+  <!-- ROGUELIKE DRAFT & ROUTE MODAL -->
+  <div id="modal-draft" class="hidden fixed inset-0 z-40 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-3xl w-full gothic-border bg-[#141219] rounded-2xl p-6 md:p-8 my-auto">
+      <!-- Step 1: Relic Draft -->
+      <div id="draft-step-relic">
+        <div class="text-center mb-6">
+          <p class="text-xs font-cinzel tracking-[0.25em] text-[#c9a961] mb-1">GRACE OF THE SANCTUARY</p>
+          <h2 class="text-xl md:text-2xl font-bold text-[#e8dcc5]">恩寵の選択（1つを獲得）</h2>
+          <p class="text-xs text-[#e8dcc5]/65 mt-1">救済の対価として、神父の助けとなる聖遺物や癒やしを得ます。</p>
+        </div>
+        <div id="draft-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- 3 Draft Cards injected here -->
+        </div>
+      </div>
+
+      <!-- Step 2: Next Door Selection -->
+      <div id="draft-step-route" class="hidden">
+        <div class="text-center mb-6">
+          <p class="text-xs font-cinzel tracking-[0.25em] text-[#c9a961] mb-1">CHOOSE THE NEXT NIGHT</p>
+          <h2 class="text-xl md:text-2xl font-bold text-[#e8dcc5]">次の夜に開く扉</h2>
+          <p class="text-xs text-[#e8dcc5]/65 mt-1">どの告解者を懺悔室へ招き入れるか選択してください。</p>
+        </div>
+        <div id="route-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- 2 Route Cards injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div id="modal-howto" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full gothic-border bg-[#141219] rounded-2xl p-6 md:p-8 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-[#c9a961]/25 pb-3 mb-4">
+        <h2 class="text-xl font-bold text-[#c9a961]">手引書：空白の懺悔室の歩み方</h2>
+        <button onclick="ui.toggleModal('modal-howto', false)" class="text-[#e8dcc5]/60 hover:text-[#e8dcc5] text-xl px-2 cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-4 text-xs md:text-sm text-[#e8dcc5]/85 leading-relaxed">
+        <div>
+          <h3 class="font-bold text-[#c9a961] mb-1">1. 信者は嘘をついていない</h3>
+          <p>訪れる信者は精神汚染のショックにより、記憶の一部が「空白（？？？）」として抜け落ちています。観察メモ（汚れや持ち物）と「地理と時間」「本日の新聞」を照らし合わせ、論理的に抜け落ちた記憶を特定してください。</p>
+        </div>
+        <div>
+          <h3 class="font-bold text-[#c9a961] mb-1">2. 時間の計算と物理的痕跡</h3>
+          <p>たとえば「家から教会まで15分の距離なのに45分かかっている」なら、往復30分かかる場所へ寄り道しています。靴の泥や衣服の灰と組み合わせれば、正解は必ず1つに絞られます。</p>
+        </div>
+        <div>
+          <h3 class="font-bold text-[#c9a961] mb-1">3. 消去法メモの活用</h3>
+          <p>候補ピースの右上にある「×」ボタンを押すと、あり得ない選択肢に打ち消し線を引いて整理できます。</p>
+        </div>
+        <div>
+          <h3 class="font-bold text-[#c9a961] mb-1">4. 蝋燭の灯火とローグライク要素</h3>
+          <p>推理を誤って「確定」を押すと蝋燭の灯火が1つ消えます。3本すべて消えると神父も汚染に飲まれ敗北となります。救済に成功するたび、聖遺物（パッシブ能力）や回復を獲得し、全5夜の生還を目指します。</p>
+        </div>
+      </div>
+      <div class="mt-6 text-right">
+        <button onclick="ui.toggleModal('modal-howto', false)" class="px-6 py-2.5 rounded-xl bg-[#c9a961] text-[#0b0a0e] font-bold text-sm cursor-pointer">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN (VICTORY / GAME OVER) -->
+  <div id="screen-end" class="hidden min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-xl w-full gothic-border bg-[#141219] rounded-2xl p-8 text-center">
+      <div id="end-badge" class="text-xs font-cinzel tracking-[0.3em] text-[#c9a961] mb-2">SANCTUARY PRESERVED</div>
+      <h2 id="end-title" class="text-3xl font-bold text-[#e8dcc5] mb-3">五夜の救済を完遂</h2>
+      <p id="end-desc" class="text-sm text-[#e8dcc5]/80 leading-relaxed mb-6">
+        <!-- Result summary -->
+      </p>
+
+      <div class="bg-[#0d0c11] rounded-xl p-4 border border-[#c9a961]/20 mb-6 text-left text-xs space-y-2">
+        <div class="flex justify-between">
+          <span class="text-[#e8dcc5]/60">到達した夜：</span>
+          <span id="end-stat-day" class="font-bold text-[#c9a961]">5 / 5 夜</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-[#e8dcc5]/60">救済した魂：</span>
+          <span id="end-stat-saved" class="font-bold text-[#e8dcc5]">5 人</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-[#e8dcc5]/60">獲得した聖遺物：</span>
+          <span id="end-stat-relics" class="font-bold text-[#c9a961]">3 個</span>
+        </div>
+      </div>
+
+      <button onclick="game.startNewRun()" class="w-full py-3.5 rounded-xl bg-gradient-to-b from-[#c9a961] to-[#9c7d3c] text-[#0b0a0e] font-bold tracking-widest hover:brightness-110 transition cursor-pointer">
+        再び懺悔室の扉を開く
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * 空白の懺悔室 - Confessional of the Blank
+     * Logical Deduction Roguelike Engine
+     */
+
+    const RITUALS = [
+      { id: 'requiem', name: '鎮魂の祈り', cause: '喪失の拒絶', desc: '死別・喪失を受け入れさせる' },
+      { id: 'atonement', name: '贖罪の聖水', cause: '罪悪感の隠蔽', desc: '犯した罪と過ちを直視させる' },
+      { id: 'oblivion', name: '忘却の香炉', cause: '禁忌への恐怖', desc: '耐え難い怪異の記憶に鍵をかける' },
+      { id: 'judgment', name: '断罪の鐘', cause: '狂信の妄執', desc: '呪われた執着と妄想を断ち切る' }
+    ];
+
+    const RELICS_POOL = [
+      {
+        id: 'silver_rosary',
+        name: '銀のロザリオ',
+        icon: '✝️',
+        desc: '各夜の開始時、誤った記憶の断片（ダミー）を1つ自動で消去する。',
+        type: 'relic'
+      },
+      {
+        id: 'old_hourglass',
+        name: '古びた砂時計',
+        icon: '⏳',
+        desc: '1ランに1度だけ、推論ミスによる蝋燭の消失を無効化する。',
+        type: 'relic'
+      },
+      {
+        id: 'truth_monocle',
+        name: '真実のモノクル',
+        icon: '🧐',
+        desc: '観察メモの中で、最も重要な物理的矛盾（決定的な痕跡）を強調表示する。',
+        type: 'relic'
+      },
+      {
+        id: 'saints_tear',
+        name: '聖女の涙瓶',
+        icon: '💧',
+        desc: '蝋燭の最大数が1本増え（最大4本）、灯火を1本回復する。',
+        type: 'consumable_relic'
+      },
+      {
+        id: 'heretic_tome',
+        name: '異端の禁書',
+        icon: '📖',
+        desc: '選択肢が2つ減るが、代償として証言に「幻聴ノイズ」が混ざる呪いを得る。',
+        type: 'relic'
+      },
+      {
+        id: 'sacred_oil',
+        name: '祝福の聖油',
+        icon: '🕯️',
+        desc: '消えた蝋燭の灯火を1本再点火する。',
+        type: 'heal'
+      },
+      {
+        id: 'purify_incense',
+        name: '浄化の白檀香',
+        icon: '🌿',
+        desc: '現在受けている「呪い」をすべて解除し、灯火を1本回復する。',
+        type: 'cleanse'
+      }
+    ];
+
+    /**
+     * Hand-crafted, 100% logically airtight cases.
+     * Every case has:
+     * - Time math / Weather / Physical trace cross-referencing
+     * - 1 or 2 blank slots in the timeline
+     * - Exact correct piece IDs & ritual ID
+     */
+    const CASES_POOL = [
+      // CASE 1: The Bride (Classic Tutorial-friendly case)
+      {
+        id: 'bride',
+        tier: 'normal',
+        name: '花嫁のヴェールを被った女',
+        arrival: '19時00分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><path d="M12 3a4 4 0 0 0-4 4c0 2 1 3 1 5l-3 9h12l-3-9c0-2 1-3 1-5a4 4 0 0 0-4-4z"/><path d="M8 7c-2 2-3 6-3 11M16 7c2 2 3 6 3 11" stroke-opacity="0.6"/></svg>`,
+        observations: [
+          { text: '真っ白なウェディングドレスを着ているが、裾が「黒い灰」で汚れている。', isKey: true },
+          { text: '自分の薬指に指輪があり、さらに「空の指輪箱」を大事そうに抱えている。', isKey: true },
+          { text: '枯れかけた白い薔薇の花束を持っている。', isKey: false }
+        ],
+        news: [
+          '昨夜、街の火葬場にて身元不明の若い男性の遺体が荼毘に付された。',
+          '丘の上の古い礼拝堂は10年前の火事で全焼しており、現在は立ち入り禁止の廃墟である。'
+        ],
+        quote: '「神父様、今夜は私たちの結婚式なのです。少し遅れてしまいましたが、彼ならきっと待ってくれていますよね？」',
+        timeline: [
+          { time: '18:00', text: '結婚式のため自宅を出発した。' },
+          { time: '18:15', text: '街の花屋で白い薔薇の花束を受け取った。' },
+          { isBlank: true, slotIndex: 0, label: '空白の30分間（18:15〜18:45）' },
+          { time: '19:00', text: '教会に到着した。（※本人は丘の礼拝堂だと思い込んでいる）' }
+        ],
+        pieces: [
+          { id: 'p_crematorium', text: '火葬場へ寄り、婚約者の遺灰から指輪を外した', isCorrect: true, slot: 0 },
+          { id: 'p_river', text: '森の川辺へ寄り、月見草を摘んで川に流した', isCorrect: false },
+          { id: 'p_clocktower', text: '古い時計塔へ登り、鐘を鳴らして式を知らせた', isCorrect: false },
+          { id: 'p_chapel_burn', text: '丘の礼拝堂に自ら火を放ち、ドレスを焦がした', isCorrect: false },
+          { id: 'p_cemetery', text: '墓地へ立ち寄り、新しい墓石に花を供えた', isCorrect: false }
+        ],
+        correctRitual: 'requiem',
+        salvationTitle: '灰になった誓いへの鎮魂',
+        salvationText: '自宅から教会まで本来15〜30分の道のりに1時間を要した理由——それは彼女が往復30分の「火葬場」へ立ち寄っていたからだった。\n\n神父が婚礼ではなく「葬儀の祈り」を捧げ始めると、彼女の瞳から涙が溢れ落ちた。「……そうでした。私は今日、彼にさよならを言いに行ったのですね」。ドレスの裾の灰と空の指輪箱の意味を受け入れ、彼女は静かに教会を後にした。'
+      },
+
+      // CASE 2: The Nobleman in the Rain
+      {
+        id: 'nobleman',
+        tier: 'normal',
+        name: '濡れた外套の貴族',
+        arrival: '19時00分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/><path d="M9 12l3 4 3-4"/></svg>`,
+        observations: [
+          { text: '高級な外套（コート）が「激しい雨」でびしょ濡れになっている。', isKey: true },
+          { text: '靴底に「川底の泥」がこびりついており、右手の袖口に赤い血痕がある。', isKey: true },
+          { text: '懐中時計は正確に19時00分を指している。', isKey: false }
+        ],
+        news: [
+          '本日の天候：18時15分までは快晴だったが、18時30分から激しい豪雨が降り始めた。',
+          '夕方、森の川辺付近で資産家の男と使用人が口論しているのが目撃されている。'
+        ],
+        quote: '「私は散歩をしてからまっすぐ教会へ来ただけだ。それなのに、なぜか手が震えて止まらないのだ……」',
+        timeline: [
+          { time: '18:00', text: '自宅の屋敷を出て、舗装路を歩いて教会へ向かった。' },
+          { isBlank: true, slotIndex: 0, label: '空白の45分間（18:00〜18:45）' },
+          { time: '19:00', text: '街の教会へ駆け込んだ。' }
+        ],
+        pieces: [
+          { id: 'p_river_crime', text: '豪雨の川辺で使用人を突き落とし、証拠を隠した', isCorrect: true, slot: 0 },
+          { id: 'p_crematorium_nob', text: '火葬場の前で雨宿りをしながら祈りを捧げた', isCorrect: false },
+          { id: 'p_straight_walk', text: '舗装された坂道をゆっくり1時間かけて歩いた', isCorrect: false },
+          { id: 'p_clock_nob', text: '時計塔の屋根裏で古い書物を読み耽っていた', isCorrect: false },
+          { id: 'p_garden_nob', text: '薬草園で転倒し、泥と赤い樹液で服を汚した', isCorrect: false }
+        ],
+        correctRitual: 'atonement',
+        salvationTitle: '豪雨に消せなかった罪の告白',
+        salvationText: '自宅から教会までは徒歩15分。18時30分前に着いていれば雨に濡れるはずがなかった。外套の濡れと靴の川底の泥は、18時30分以降の豪雨の中で「森の川辺」にいた決定的な証拠だった。\n\n贖罪の聖水が額に注がれると、貴族は膝から崩れ落ちた。「私が……彼を川へ突き落としたのだ……」。罪の記憶を取り戻した男は、自首するため夜の街へと向かった。'
+      },
+
+      // CASE 3: The Nun & The Forbidden Grimoire
+      {
+        id: 'nun',
+        tier: 'normal',
+        name: '震える指先の修道女',
+        arrival: '18時35分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><path d="M12 2C8 2 6 6 6 11v9h12v-9c0-5-2-9-6-9z"/><circle cx="12" cy="9" r="3"/><path d="M9 15h6"/></svg>`,
+        observations: [
+          { text: '指先に「特殊な紫色のインク」と「古い羊皮紙の切れ端」が付着している。', isKey: true },
+          { text: '耳を塞ぐように震えており、「鐘の音が止まらない」と呟いている。', isKey: true },
+          { text: '服装に泥や灰の汚れは一切ない。', isKey: false }
+        ],
+        news: [
+          '古い時計塔の17時45分の鐘が鳴った直後、塔の封印書庫が何者かに破られた形跡が見つかった。',
+          '封印書庫には「読むと発狂する紫インクの禁書」が保管されていたという。'
+        ],
+        quote: '「祈りの時間を過ごしていただけです。恐ろしいものなど何も見ていません……ええ、何も……」',
+        timeline: [
+          { time: '18:00', text: '修道院（市街）を出て教会へ向かった。' },
+          { isBlank: true, slotIndex: 0, label: '空白の20分間（18:00〜18:20）' },
+          { time: '18:35', text: '街の教会へ到着した。' }
+        ],
+        pieces: [
+          { id: 'p_clock_book', text: '古い時計塔へ立ち寄り、紫インクの禁書を開いてしまった', isCorrect: true, slot: 0 },
+          { id: 'p_river_nun', text: '森の川辺で紫色の花を摘み、押し花を作っていた', isCorrect: false },
+          { id: 'p_crem_nun', text: '火葬場で古い聖書を燃やし、灰を被った', isCorrect: false },
+          { id: 'p_cemetery_nun', text: '墓地の礼拝堂で25分間静かに瞑想していた', isCorrect: false },
+          { id: 'p_theft_nun', text: '貧しい人々のためにパンを盗み、逃げてきた', isCorrect: false }
+        ],
+        correctRitual: 'oblivion',
+        salvationTitle: '禁忌の記憶への封印',
+        salvationText: '市街から教会までの15分に加え、ちょうど「20分」の寄り道——それは古い時計塔への立ち寄りだった。指先の紫インクと羊皮紙は、彼女が禁書を覗き込み、精神の防衛本能でその記憶を封印したことを示していた。\n\n忘却の香炉から立ち昇る白檀の煙が彼女を包むと、恐怖に引きつっていた表情が安らかに緩んだ。彼女は禁書の記憶を深く眠らせ、静かな呼吸を取り戻した。'
+      },
+
+      // CASE 4: The Apothecary's Poison
+      {
+        id: 'apothecary',
+        tier: 'normal',
+        name: '虚ろな目の薬師',
+        arrival: '18時40分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><path d="M9 3h6M10 3v5l-4 9a2 2 0 0 0 2 3h8a2 2 0 0 0 2-3l-4-9V3"/><path d="M8 14h8"/></svg>`,
+        observations: [
+          { text: '白衣の袖に「薬草園の赤い腐葉土」と「空になった毒薬の小瓶」が入っている。', isKey: true },
+          { text: '懐から「患者への謝罪の手紙（書きかけ）」が覗いている。', isKey: true },
+          { text: '雨に濡れた形跡はない。', isKey: false }
+        ],
+        news: [
+          '本日18時過ぎ、薬草園の奥にある離れで、長年病床にあった富豪が急死した。',
+          '死因は薬の調合ミスによる中毒死の疑いがあるという。'
+        ],
+        quote: '「私はただ患者に効く薬を届けに行っただけです。きっと今頃は元気になっているはずです……」',
+        timeline: [
+          { time: '18:00', text: '市街の薬局を出発した。' },
+          { isBlank: true, slotIndex: 0, label: '空白の25分間（18:00〜18:25）' },
+          { time: '18:40', text: '街の教会へ辿り着いた。' }
+        ],
+        pieces: [
+          { id: 'p_herb_poison', text: '薬草園へ寄り、誤って致死量の毒を調合して飲ませた', isCorrect: true, slot: 0 },
+          { id: 'p_clock_apo', text: '時計塔へ寄り、止まった時計の修理を依頼した', isCorrect: false },
+          { id: 'p_river_apo', text: '森の川辺で毒薬の小瓶を洗い清めていた', isCorrect: false },
+          { id: 'p_crem_apo', text: '火葬場で師匠の遺骨を引き取っていた', isCorrect: false },
+          { id: 'p_ritual_apo', text: '不死の霊薬を作るため悪魔と契約を交わした', isCorrect: false }
+        ],
+        correctRitual: 'atonement',
+        salvationTitle: '過ちの処方箋への贖罪',
+        salvationText: '15分の道のりに「＋25分」の誤差。そして袖についた赤い腐葉土は、彼が「薬草園」へ立ち寄った証だった。彼は自らの調合ミスで患者を死なせた罪悪感に耐えきれず、事実を記憶から消していたのだ。\n\n贖罪の聖水を受けた薬師は、震える手で空の小瓶を差し出し、自らの過ちを涙ながらに懺悔した。'
+      },
+
+      // CASE 5: The Gravekeeper's Obsession
+      {
+        id: 'gravekeeper',
+        tier: 'hard',
+        name: '泥まみれの墓守',
+        arrival: '19時10分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><path d="M12 2v20M7 7h10"/><path d="M5 22h14"/></svg>`,
+        observations: [
+          { text: 'スコップを握りしめており、刃先に「墓地の湿った黒土」と「銀の十字架の破片」がついている。', isKey: true },
+          { text: '「死者を蘇らせる神聖な儀式を完遂した」と恍惚とした表情で笑っている。', isKey: true },
+          { text: '衣服は18時30分からの豪雨で完全に濡れている。', isKey: false }
+        ],
+        news: [
+          '今夜18時半過ぎ、墓地の古い納骨堂が何者かによって暴かれ、聖遺物の十字架が破壊された。',
+          '街では「死者を蘇らせる禁断の降霊術」を信じる狂信者の噂が広まっている。'
+        ],
+        quote: '「神よ感謝します！私はただ墓地の見回りをし、聖なる祈りを捧げただけなのです！」',
+        timeline: [
+          { time: '18:30', text: '豪雨の中、市街の自宅を出発した。' },
+          { isBlank: true, slotIndex: 0, label: '空白の25分間（18:30〜18:55）' },
+          { time: '19:10', text: '高笑いをしながら街の教会へ踏み込んだ。' }
+        ],
+        pieces: [
+          { id: 'p_grave_cult', text: '墓地へ立ち寄り、墓を暴いて降霊の呪術を行った', isCorrect: true, slot: 0 },
+          { id: 'p_grave_mourning', text: '墓地へ立ち寄り、亡き妻の墓前で泣き崩れていた', isCorrect: false },
+          { id: 'p_crem_grave', text: '火葬場へ立ち寄り、遺灰を盗み出そうとした', isCorrect: false },
+          { id: 'p_clock_grave', text: '時計塔へ登り、雷に打たれて正気を失った', isCorrect: false },
+          { id: 'p_river_grave', text: '森の川辺でスコップの泥を洗い落としていた', isCorrect: false }
+        ],
+        correctRitual: 'judgment',
+        salvationTitle: '狂信の妄執を断つ鐘の音',
+        salvationText: '18時30分出発で19時10分到着（40分＝基本15分＋墓地25分）。彼は悲しみからではなく、狂信的な降霊術の妄執に憑りつかれ、墓を暴き聖遺物を破壊した行為を「神聖な祈り」と錯覚していた。\n\n断罪の鐘が礼拝堂に重く響き渡ると、彼の狂気じみた笑顔が砕け散り、呪われた妄執から解き放たれた。'
+      },
+
+      // CASE 6: The Choirboy & The Bell
+      {
+        id: 'choirboy',
+        tier: 'normal',
+        name: '声の出ない聖歌隊の少年',
+        arrival: '18時20分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><circle cx="12" cy="8" r="3.5"/><path d="M6 20c0-3.5 2.5-6 6-6s6 2.5 6 6"/><path d="M9 14l3 2 3-2"/></svg>`,
+        observations: [
+          { text: '喉を押さえて声が出ず、聖歌隊の白い法衣に「古い錆（さび）と鳩の羽根」がついている。', isKey: true },
+          { text: '手に「止まった懐中時計（17:45）」を握りしめている。', isKey: true },
+          { text: '靴に泥や灰はついていない。', isKey: false }
+        ],
+        news: [
+          '古い時計塔の最上階には「聴いた者の声を奪う呪われた鐘」が吊るされているという。',
+          '夕方、時計塔の鳩が一斉に飛び立つのが目撃された。'
+        ],
+        quote: '（筆談のメモ）「ぼくはただ練習のために教会へ来ただけです。どうして声が出ないのか分かりません……」',
+        timeline: [
+          { time: '17:45', text: '寄宿舎（市街）を出て教会へ向かった。' },
+          { isBlank: true, slotIndex: 0, label: '空白の20分間（17:45〜18:05）' },
+          { time: '18:20', text: '街の教会へ駆け込んできた。' }
+        ],
+        pieces: [
+          { id: 'p_clock_boy', text: '古い時計塔へ登り、呪われた鐘を間近で聴いてしまった', isCorrect: true, slot: 0 },
+          { id: 'p_river_boy', text: '森の川辺で冷たい水を飲みすぎて喉を痛めた', isCorrect: false },
+          { id: 'p_crem_boy', text: '火葬場の煙を吸い込み、声を失ってしまった', isCorrect: false },
+          { id: 'p_herb_boy', text: '薬草園で毒の実を誤って口にしてしまった', isCorrect: false },
+          { id: 'p_theft_boy', text: '教会の献金箱を盗もうとして喉を詰まらせた', isCorrect: false }
+        ],
+        correctRitual: 'oblivion',
+        salvationTitle: '呪われた鐘の残響の封印',
+        salvationText: '17時45分出発、18時20分到着（35分＝基本15分＋時計塔20分）。錆と鳩の羽根は、少年が立ち入り禁止の時計塔へ登り、呪われた鐘の音を浴びて恐怖のあまり記憶と声を閉ざしたことを示していた。\n\n忘却の香炉の煙が少年の喉元を癒やすと、恐怖の記憶が薄れ、か細くも澄んだ声が戻ってきた。'
+      },
+
+      // CASE 7: The Widow's Empty Cradle
+      {
+        id: 'widow',
+        tier: 'normal',
+        name: '空の揺り籠を抱く婦人',
+        arrival: '18時45分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8"><circle cx="12" cy="7" r="3.5"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/><path d="M8 15c2 2 6 2 8 0"/></svg>`,
+        observations: [
+          { text: '小さな白い布包みをあやしているが、中には「月見草の花」しか入っていない。', isKey: true },
+          { text: 'スカートの裾が「川底の泥」で濡れており、靴は片方しかない。', isKey: true },
+          { text: '髪は乱れているが、雨粒はついていない。', isKey: false }
+        ],
+        news: [
+          '今朝、流行り病で亡くなった幼子の水葬（川へ花を流す弔い）が森の川辺で執り行われた。',
+          '18時30分から雨が降り始めたが、それ以前は曇り空だった。'
+        ],
+        quote: '「シーッ、静かに神父様。この子がやっと眠りについたのです。洗礼をお願いできますか？」',
+        timeline: [
+          { time: '18:00', text: '自宅を出発し、街の教会へ向かった。' },
+          { isBlank: true, slotIndex: 0, label: '空白の30分間（18:00〜18:30）' },
+          { time: '18:45', text: '街の教会へ到着した。' }
+        ],
+        pieces: [
+          { id: 'p_river_baby', text: '森の川辺へ行き、幼子の水葬を見送って月見草を拾った', isCorrect: true, slot: 0 },
+          { id: 'p_crem_baby', text: '火葬場へ行き、灰の中から形見を探していた', isCorrect: false },
+          { id: 'p_clock_baby', text: '時計塔の前で30分間誰かを待ち続けていた', isCorrect: false },
+          { id: 'p_abandon_baby', text: '森の川辺に我が子を置き去りにして逃げてきた', isCorrect: false },
+          { id: 'p_herb_baby', text: '薬草園で眠り薬の草を摘んで布に包んだ', isCorrect: false }
+        ],
+        correctRitual: 'requiem',
+        salvationTitle: '水辺に還った命への鎮魂',
+        salvationText: '18時から18時45分（45分＝基本15分＋川辺30分）。彼女は子を捨てたのではなく、流行り病で失った我が子の水葬に耐えられず、月見草を我が子と思い込んで抱きしめていたのだ。\n\n神父が洗礼ではなく「幼子のための鎮魂の祈り」を捧げると、婦人は布包みの中の月見草を見つめ、初めて我が子の死を受け入れて涙を流した。'
+      },
+
+      // CASE 8: BOSS CASE (Day 5 - 2 Blanks!)
+      {
+        id: 'boss_inquisitor',
+        tier: 'boss',
+        name: '【最終夜】血塗られた仮面の異端審問官',
+        arrival: '19時25分',
+        avatarSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8 text-[#e03e3e]"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/><path d="M9 10h6M12 7v8"/></svg>`,
+        observations: [
+          { text: '右靴には「川底の泥」が、左袖には「火葬場の黒い灰」が同時に付着している。', isKey: true },
+          { text: '「この街の汚染者をすべて浄化する聖なる使命を帯びている」と狂気じみた声で語る。', isKey: true },
+          { text: '18時30分以降の豪雨でマントの半分だけが濡れている。', isKey: false }
+        ],
+        news: [
+          '今夜18時15分頃、森の川辺で無実の巡礼者が何者かに襲われ、18時45分頃には火葬場の記録簿が焼き払われた。',
+          '異端審問局は「狂気に陥った審問官が独断で街を焼き払おうとしている」と警告を発している。'
+        ],
+        quote: '「神父、私は今夜ずっとこの教会の前で祈りを捧げていた。さあ、次の『浄化』を始めようではないか！」',
+        timeline: [
+          { time: '18:00', text: '市街の宿舎を出発した。' },
+          { isBlank: true, slotIndex: 0, label: '第1の空白（18:00〜18:30：雨の前）' },
+          { isBlank: true, slotIndex: 1, label: '第2の空白（18:30〜19:00：豪雨の中）' },
+          { time: '19:25', text: '街の教会へ到着した。（※途中10分の休憩を含む）' }
+        ],
+        pieces: [
+          { id: 'p_boss_1', text: '森の川辺へ寄り、無実の巡礼者を異端と決めつけて襲った', isCorrect: true, slot: 0 },
+          { id: 'p_boss_2', text: '豪雨の中で火葬場へ寄り、証拠の記録簿を焼き払った', isCorrect: true, slot: 1 },
+          { id: 'p_boss_false1', text: '時計塔へ登り、街の時間を17時45分で固定した', isCorrect: false },
+          { id: 'p_boss_false2', text: '薬草園で聖なる香油を作り、傷を癒やしていた', isCorrect: false },
+          { id: 'p_boss_false3', text: '丘の廃墟の礼拝堂で亡き師匠の幻影と語り合った', isCorrect: false },
+          { id: 'p_boss_false4', text: '墓地へ立ち寄り、聖遺物の十字架を修復していた', isCorrect: false }
+        ],
+        correctRitual: 'judgment',
+        salvationTitle: '狂信の仮面を砕く大鐘の音',
+        salvationText: '雨の前の30分（18:00〜18:30）で川辺の泥をつけ、豪雨の30分（18:30〜19:00）で火葬場の灰を浴びた——彼は「浄化」という狂信の妄執に憑りつかれ、無実の人々を傷つけていたのだ。\n\n神父が渾身の力で「断罪の鐘」を打ち鳴らすと、仮面に深い亀裂が走り砕け散った。狂気の霧が晴れ、男は自らの犯した暴虐に戦慄しながら武器を捨てた。こうして五夜の長い懺悔は幕を閉じた。'
+      }
+    ];
+
+    const CURSES_POOL = [
+      {
+        id: 'auditory_hallucination',
+        name: '幻聴の呪い',
+        icon: '👁️‍🗨️',
+        desc: '信者のタイムラインに意味のない幻聴ブロックが1つ紛れ込む。'
+      },
+      {
+        id: 'fog_of_doubt',
+        name: '疑念の霧',
+        icon: '🌫️',
+        desc: '観察メモの1つが霞んで読みづらくなる（重要手がかりは残る）。'
+      }
+    ];
+
+    /**
+     * Game State & Core Controller
+     */
+    const game = {
+      day: 1,
+      maxDays: 5,
+      candles: 3,
+      maxCandles: 3,
+      relics: [],
+      curses: [],
+      usedCaseIds: [],
+      hourglassUsed: false,
+      routeType: 'normal', // 'normal' | 'hard'
+      savedCount: 0,
+
+      // Current Stage State
+      currentCase: null,
+      activeSlotIndex: 0,
+      slottedPieces: {}, // { slotIndex: pieceId }
+      eliminatedPieceIds: new Set(),
+      selectedRitual: null,
+      displayedPieces: [],
+      displayedTimeline: [],
+      displayedObservations: [],
+
+      startNewRun() {
+        this.day = 1;
+        this.candles = 3;
+        this.maxCandles = 3;
+        this.relics = [];
+        this.curses = [];
+        this.usedCaseIds = [];
+        this.hourglassUsed = false;
+        this.routeType = 'normal';
+        this.savedCount = 0;
+
+        document.getElementById('screen-title').classList.add('hidden');
+        document.getElementById('screen-end').classList.add('hidden');
+        document.getElementById('screen-game').classList.remove('hidden');
+
+        this.loadDay(1);
+      },
+
+      hasRelic(id) {
+        return this.relics.some(r => r.id === id);
+      },
+
+      hasCurse(id) {
+        return this.curses.some(c => c.id === id);
+      },
+
+      loadDay(dayNum) {
+        this.day = dayNum;
+        this.activeSlotIndex = 0;
+        this.slottedPieces = {};
+        this.eliminatedPieceIds = new Set();
+        this.selectedRitual = null;
+
+        const fb = document.getElementById('feedback-banner');
+        fb.classList.add('hidden');
+
+        // Select case
+        if (dayNum === 5) {
+          this.currentCase = CASES_POOL.find(c => c.tier === 'boss');
+        } else if (dayNum === 1) {
+          // Always start with the iconic Bride case for smooth onboarding
+          this.currentCase = CASES_POOL.find(c => c.id === 'bride');
+        } else {
+          const candidates = CASES_POOL.filter(c => c.tier !== 'boss' && !this.usedCaseIds.includes(c.id));
+          this.currentCase = candidates[Math.floor(Math.random() * candidates.length)] || CASES_POOL[1];
+        }
+        this.usedCaseIds.push(this.currentCase.id);
+
+        // Prepare Timeline (apply Auditory Hallucination curse if active)
+        this.displayedTimeline = JSON.parse(JSON.stringify(this.currentCase.timeline));
+        if (this.hasCurse('auditory_hallucination')) {
+          this.displayedTimeline.splice(1, 0, {
+            time: '??:??',
+            text: '「……鐘が鳴る、誰かが私を見ている……」（※幻聴ノイズ）',
+            isNoise: true
+          });
+        }
+
+        // Prepare Observations (apply Fog curse if active)
+        this.displayedObservations = JSON.parse(JSON.stringify(this.currentCase.observations));
+        if (this.hasCurse('fog_of_doubt')) {
+          const nonKeyIdx = this.displayedObservations.findIndex(o => !o.isKey);
+          if (nonKeyIdx !== -1) {
+            this.displayedObservations[nonKeyIdx].text = '（疑念の霧により、細部の観察記録が霞んで読み取れない……）';
+          }
+        }
+
+        // Prepare Pieces Pool (apply Relic modifiers)
+        let pool = JSON.parse(JSON.stringify(this.currentCase.pieces));
+        // Shuffle pool
+        pool.sort(() => Math.random() - 0.5);
+
+        // Heretic Tome relic: remove up to 2 false pieces
+        if (this.hasRelic('heretic_tome')) {
+          let removed = 0;
+          pool = pool.filter(p => {
+            if (!p.isCorrect && removed < 2) {
+              removed++;
+              return false;
+            }
+            return true;
+          });
+        }
+
+        this.displayedPieces = pool;
+
+        // Silver Rosary relic: auto-eliminate 1 false piece
+        if (this.hasRelic('silver_rosary')) {
+          const falsePiece = this.displayedPieces.find(p => !p.isCorrect);
+          if (falsePiece) {
+            this.eliminatedPieceIds.add(falsePiece.id);
+          }
+        }
+
+        ui.renderAll();
+      },
+
+      selectSlot(slotIdx) {
+        this.activeSlotIndex = slotIdx;
+        ui.renderTimeline();
+      },
+
+      assignPiece(pieceId) {
+        if (this.eliminatedPieceIds.has(pieceId)) return;
+
+        // If already slotted in active slot, unslot it
+        if (this.slottedPieces[this.activeSlotIndex] === pieceId) {
+          delete this.slottedPieces[this.activeSlotIndex];
+        } else {
+          // Remove piece from any other slot first
+          for (const key in this.slottedPieces) {
+            if (this.slottedPieces[key] === pieceId) {
+              delete this.slottedPieces[key];
+            }
+          }
+          this.slottedPieces[this.activeSlotIndex] = pieceId;
+
+          // Auto-advance activeSlotIndex if there is another blank slot
+          const blankSlots = this.displayedTimeline.filter(t => t.isBlank).map(t => t.slotIndex);
+          const nextEmpty = blankSlots.find(idx => this.slottedPieces[idx] === undefined);
+          if (nextEmpty !== undefined) {
+            this.activeSlotIndex = nextEmpty;
+          }
+        }
+        ui.renderTimeline();
+        ui.renderPieces();
+      },
+
+      toggleEliminatePiece(e, pieceId) {
+        e.stopPropagation();
+        if (this.eliminatedPieceIds.has(pieceId)) {
+          this.eliminatedPieceIds.delete(pieceId);
+        } else {
+          this.eliminatedPieceIds.add(pieceId);
+          // Unslot if currently slotted
+          for (const key in this.slottedPieces) {
+            if (this.slottedPieces[key] === pieceId) {
+              delete this.slottedPieces[key];
+            }
+          }
+        }
+        ui.renderTimeline();
+        ui.renderPieces();
+      },
+
+      selectRitual(ritualId) {
+        this.selectedRitual = ritualId;
+        ui.renderRituals();
+      },
+
+      submitDeduction() {
+        const blankItems = this.displayedTimeline.filter(t => t.isBlank);
+        const allFilled = blankItems.every(b => this.slottedPieces[b.slotIndex] !== undefined);
+
+        if (!allFilled || !this.selectedRitual) {
+          ui.showFeedback('warning', 'すべての「空白の記憶」を埋め、さらに「救済の儀式」を選択してから祈りを捧げてください。');
+          return;
+        }
+
+        // Check Pieces
+        let piecesCorrect = true;
+        for (const b of blankItems) {
+          const chosenId = this.slottedPieces[b.slotIndex];
+          const pieceObj = this.displayedPieces.find(p => p.id === chosenId);
+          if (!pieceObj || !pieceObj.isCorrect || (pieceObj.slot !== undefined && pieceObj.slot !== b.slotIndex)) {
+            piecesCorrect = false;
+            break;
+          }
+        }
+
+        // Check Ritual
+        const ritualCorrect = (this.selectedRitual === this.currentCase.correctRitual);
+
+        if (piecesCorrect && ritualCorrect) {
+          // SUCCESS!
+          this.savedCount++;
+          document.getElementById('salvation-title').textContent = this.currentCase.salvationTitle;
+          document.getElementById('salvation-text').innerText = this.currentCase.salvationText;
+          ui.toggleModal('modal-salvation', true);
+        } else {
+          // MISTAKE!
+          let reason = '';
+          if (!piecesCorrect && !ritualCorrect) {
+            reason = '当てはめた「記憶の断片」も「救済の儀式」も、事実と噛み合っていないようだ……';
+          } else if (!piecesCorrect) {
+            reason = '「救済の儀式」は正しいようだが、当てはめた「記憶の断片」が時間や証拠と矛盾している……';
+          } else {
+            reason = '記憶の空白は正しく埋まった！しかし、選んだ「救済の儀式」が信者の心の傷と噛み合わない……';
+          }
+
+          // Check Old Hourglass Relic
+          if (this.hasRelic('old_hourglass') && !this.hourglassUsed) {
+            this.hourglassUsed = true;
+            ui.triggerMistakeFX(false);
+            ui.showFeedback('error', `【古びた砂時計が砕け、時間を巻き戻した！】灯火は失われなかった。\n${reason}`);
+            ui.renderHUD();
+            return;
+          }
+
+          this.candles--;
+          ui.triggerMistakeFX(true);
+          ui.renderHUD();
+
+          if (this.candles <= 0) {
+            setTimeout(() => {
+              this.endRun(false);
+            }, 900);
+          } else {
+            ui.showFeedback('error', `蝋燭の灯火が1つ消えた……（残り ${this.candles} 本）\n${reason}`);
+          }
+        }
+      },
+
+      proceedAfterSalvation() {
+        ui.toggleModal('modal-salvation', false);
+        if (this.day >= this.maxDays) {
+          this.endRun(true);
+        } else {
+          this.openDraftScreen();
+        }
+      },
+
+      openDraftScreen() {
+        document.getElementById('draft-step-relic').classList.remove('hidden');
+        document.getElementById('draft-step-route').classList.add('hidden');
+
+        // Pick 3 available rewards
+        const available = RELICS_POOL.filter(r => {
+          if (r.type === 'relic' && this.hasRelic(r.id)) return false;
+          if (r.id === 'saints_tear' && this.maxCandles >= 4) return false;
+          if (r.id === 'cleanse' && this.curses.length === 0) return false;
+          return true;
+        });
+
+        available.sort(() => Math.random() - 0.5);
+        const choices = available.slice(0, 3);
+
+        const container = document.getElementById('draft-cards');
+        container.innerHTML = '';
+
+        choices.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'gothic-card rounded-xl p-5 flex flex-col justify-between cursor-pointer';
+          card.innerHTML = `
+            <div>
+              <div class="text-3xl mb-3">${item.icon}</div>
+              <h3 class="text-base font-bold text-[#c9a961] mb-2">${item.name}</h3>
+              <p class="text-xs text-[#e8dcc5]/80 leading-relaxed">${item.desc}</p>
+            </div>
+            <button class="mt-5 w-full py-2 rounded-lg bg-[#c9a961]/20 border border-[#c9a961]/40 text-xs font-bold text-[#c9a961] hover:bg-[#c9a961] hover:text-[#0b0a0e] transition">
+              これを受け取る
+            </button>
+          `;
+          card.onclick = () => this.chooseDraftReward(item);
+          container.appendChild(card);
+        });
+
+        ui.toggleModal('modal-draft', true);
+      },
+
+      chooseDraftReward(item) {
+        if (item.type === 'relic') {
+          this.relics.push(item);
+          if (item.id === 'heretic_tome' && this.curses.length === 0) {
+            this.curses.push(CURSES_POOL[0]);
+          }
+        } else if (item.id === 'saints_tear') {
+          this.maxCandles = Math.min(4, this.maxCandles + 1);
+          this.candles = Math.min(this.maxCandles, this.candles + 1);
+        } else if (item.id === 'sacred_oil') {
+          this.candles = Math.min(this.maxCandles, this.candles + 1);
+        } else if (item.id === 'purify_incense') {
+          this.curses = [];
+          this.candles = Math.min(this.maxCandles, this.candles + 1);
+        }
+
+        ui.renderHUD();
+
+        // If next day is Day 5 (Final Boss), skip route choice and go straight to Final Night
+        if (this.day + 1 === this.maxDays) {
+          this.routeType = 'boss';
+          ui.toggleModal('modal-draft', false);
+          this.loadDay(this.day + 1);
+          return;
+        }
+
+        // Show Route Selection
+        document.getElementById('draft-step-relic').classList.add('hidden');
+        document.getElementById('draft-step-route').classList.remove('hidden');
+
+        const routeContainer = document.getElementById('route-cards');
+        routeContainer.innerHTML = `
+          <div onclick="game.chooseRoute('normal')" class="gothic-card rounded-xl p-5 cursor-pointer">
+            <div class="text-xs text-[#c9a961] font-bold mb-1">穏やかなノックの音</div>
+            <h3 class="text-lg font-bold text-[#e8dcc5] mb-2">静かな懺悔の扉</h3>
+            <p class="text-xs text-[#e8dcc5]/75 leading-relaxed mb-4">
+              通常の精神汚染を受けた信者を招き入れます。リスクを抑えて着実に救済を進めます。
+            </p>
+            <div class="text-xs font-bold text-[#c9a961]">→ 通常の信者</div>
+          </div>
+
+          <div onclick="game.chooseRoute('cursed')" class="gothic-card rounded-xl p-5 cursor-pointer border-[#9e1b1b]/50">
+            <div class="text-xs text-[#e03e3e] font-bold mb-1">血の滲む扉（ハイリスク）</div>
+            <h3 class="text-lg font-bold text-[#e8dcc5] mb-2">深淵の懺悔室</h3>
+            <p class="text-xs text-[#e8dcc5]/75 leading-relaxed mb-4">
+              神父自身が「呪い」を1つ背負う代わりに、蝋燭の灯火が1本回復します。
+            </p>
+            <div class="text-xs font-bold text-[#e03e3e]">→ 呪い獲得 ＋ 灯火1回復</div>
+          </div>
+        `;
+      },
+
+      chooseRoute(type) {
+        this.routeType = type;
+        if (type === 'cursed') {
+          this.candles = Math.min(this.maxCandles, this.candles + 1);
+          const availableCurses = CURSES_POOL.filter(c => !this.hasCurse(c.id));
+          if (availableCurses.length > 0) {
+            this.curses.push(availableCurses[0]);
+          }
+        }
+        ui.toggleModal('modal-draft', false);
+        this.loadDay(this.day + 1);
+      },
+
+      endRun(isVictory) {
+        document.getElementById('screen-game').classList.add('hidden');
+        document.getElementById('screen-end').classList.remove('hidden');
+
+        const badge = document.getElementById('end-badge');
+        const title = document.getElementById('end-title');
+        const desc = document.getElementById('end-desc');
+
+        if (isVictory) {
+          badge.textContent = 'SANCTUARY PRESERVED';
+          badge.className = 'text-xs font-cinzel tracking-[0.3em] text-[#c9a961] mb-2';
+          title.textContent = '五夜の救済を完遂';
+          desc.textContent = 'あなたは冷徹な論理と揺るぎない信仰によって、迷える魂たちの「空白の記憶」をすべて解き明かしました。夜明けの光がステンドグラスを照らしています。';
+        } else {
+          badge.textContent = 'CONSUMED BY DARKNESS';
+          badge.className = 'text-xs font-cinzel tracking-[0.3em] text-[#e03e3e] mb-2';
+          title.textContent = '灯火は消え、闇に飲まれた';
+          desc.textContent = 'すべての蝋燭が燃え尽き、神父自身の記憶にも深い空白が刻まれてしまった。懺悔室の扉は静かに閉ざされる……。';
+        }
+
+        document.getElementById('end-stat-day').textContent = `第 ${this.day} 夜 / ${this.maxDays} 夜`;
+        document.getElementById('end-stat-saved').textContent = `${this.savedCount} 人`;
+        document.getElementById('end-stat-relics').textContent = `${this.relics.length} 個`;
+      }
+    };
+
+    /**
+     * UI Rendering & Interaction Helpers
+     */
+    const ui = {
+      renderAll() {
+        this.renderHUD();
+        this.renderObservation();
+        this.renderTimeline();
+        this.renderPieces();
+        this.renderRituals();
+        this.renderDailyNews();
+      },
+
+      renderHUD() {
+        document.getElementById('hud-day').textContent = game.day === 5 ? '第 5 夜（最終夜）' : `第 ${game.day} 夜`;
+
+        const routeBadge = document.getElementById('hud-route-badge');
+        if (game.day === 5) {
+          routeBadge.textContent = '最終試練';
+          routeBadge.className = 'hidden sm:inline-block text-xs px-2.5 py-1 rounded-full bg-[#9e1b1b]/30 text-[#e03e3e] border border-[#e03e3e]/40 font-bold';
+        } else if (game.routeType === 'cursed') {
+          routeBadge.textContent = '深淵の懺悔室';
+          routeBadge.className = 'hidden sm:inline-block text-xs px-2.5 py-1 rounded-full bg-[#9e1b1b]/20 text-[#e03e3e] border border-[#e03e3e]/30';
+        } else {
+          routeBadge.textContent = '静かな懺悔';
+          routeBadge.className = 'hidden sm:inline-block text-xs px-2.5 py-1 rounded-full bg-[#1f1b29] text-[#e8dcc5]/80 border border-[#c9a961]/20';
+        }
+
+        // Candles
+        const candleContainer = document.getElementById('hud-candles');
+        candleContainer.innerHTML = '';
+        for (let i = 0; i < game.maxCandles; i++) {
+          const isLit = i < game.candles;
+          const candleEl = document.createElement('div');
+          candleEl.className = 'flex flex-col items-center';
+          candleEl.innerHTML = isLit
+            ? `<svg viewBox="0 0 24 32" class="w-5 h-7">
+                <path class="candle-flame" d="M12 2 C15 7, 16 11, 12 14 C8 11, 9 7, 12 2 Z" fill="#ffbe44"/>
+                <rect x="8" y="15" width="8" height="15" rx="1.5" fill="#e8dcc5"/>
+               </svg>`
+            : `<svg viewBox="0 0 24 32" class="w-5 h-7 opacity-35">
+                <path d="M12 11 L12 15" stroke="#888" stroke-width="1.5"/>
+                <rect x="8" y="15" width="8" height="15" rx="1.5" fill="#555"/>
+               </svg>`;
+          candleContainer.appendChild(candleEl);
+        }
+
+        // Relics & Curses badges
+        const relicContainer = document.getElementById('hud-relics');
+        relicContainer.innerHTML = game.relics.map(r => `
+          <span title="${r.name}: ${r.desc}" class="px-2 py-1 rounded-lg bg-[#c9a961]/15 border border-[#c9a961]/40 text-xs cursor-help">
+            ${r.icon}
+          </span>
+        `).join('');
+
+        const curseContainer = document.getElementById('hud-curses');
+        curseContainer.innerHTML = game.curses.map(c => `
+          <span title="[呪い] ${c.name}: ${c.desc}" class="px-2 py-1 rounded-lg bg-[#9e1b1b]/25 border border-[#e03e3e]/50 text-xs cursor-help">
+            ${c.icon}
+          </span>
+        `).join('');
+
+        // Desktop sidebar modifiers list
+        const sidebarMod = document.getElementById('sidebar-modifiers');
+        if (game.relics.length === 0 && game.curses.length === 0) {
+          sidebarMod.innerHTML = `<p class="text-[#e8dcc5]/40 italic">まだ聖遺物を所持していません</p>`;
+        } else {
+          sidebarMod.innerHTML = [
+            ...game.relics.map(r => `<div class="p-2 rounded-lg bg-[#0e0c12] border border-[#c9a961]/25"><strong class="text-[#c9a961]">${r.icon} ${r.name}</strong><p class="text-[11px] text-[#e8dcc5]/70 mt-0.5">${r.desc}</p></div>`),
+            ...game.curses.map(c => `<div class="p-2 rounded-lg bg-[#1c0e12] border border-[#e03e3e]/35"><strong class="text-[#e03e3e]">${c.icon} ${c.name}</strong><p class="text-[11px] text-[#e8dcc5]/70 mt-0.5">${c.desc}</p></div>`)
+          ].join('');
+        }
+      },
+
+      renderObservation() {
+        const c = game.currentCase;
+        document.getElementById('penitent-avatar').innerHTML = c.avatarSvg;
+        document.getElementById('penitent-name').textContent = c.name;
+        document.getElementById('penitent-subtitle').textContent = `到着時刻：${c.arrival}`;
+        document.getElementById('penitent-quote').textContent = c.quote;
+
+        const hasMonocle = game.hasRelic('truth_monocle');
+        const list = document.getElementById('observation-list');
+        list.innerHTML = game.displayedObservations.map(obs => {
+          const highlight = hasMonocle && obs.isKey
+            ? 'border-[#c9a961] bg-[#c9a961]/15 text-[#fff]'
+            : 'border-[#c9a961]/15 bg-[#0e0c12] text-[#e8dcc5]/90';
+          return `
+            <li class="p-3 rounded-xl border ${highlight} leading-relaxed text-xs md:text-sm">
+              ${hasMonocle && obs.isKey ? '<span class="text-[#c9a961] font-bold text-xs block mb-0.5">✦ 決定的な痕跡</span>' : ''}
+              ${obs.text}
+            </li>
+          `;
+        }).join('');
+      },
+
+      renderTimeline() {
+        const container = document.getElementById('timeline-container');
+        container.innerHTML = '';
+
+        game.displayedTimeline.forEach((item, idx) => {
+          const div = document.createElement('div');
+          if (!item.isBlank) {
+            const noiseStyle = item.isNoise
+              ? 'border-[#e03e3e]/40 bg-[#1c0e12]/70 text-[#e03e3e]/80 italic'
+              : 'border-[#c9a961]/20 bg-[#0e0c12] text-[#e8dcc5]/90';
+            div.className = `p-3 rounded-xl border ${noiseStyle} flex items-start gap-3 text-xs md:text-sm`;
+            div.innerHTML = `
+              <span class="font-cinzel font-bold text-[#c9a961] shrink-0 mt-0.5">${item.time}</span>
+              <span>${item.text}</span>
+            `;
+          } else {
+            const sIdx = item.slotIndex;
+            const isSelected = (game.activeSlotIndex === sIdx);
+            const slottedId = game.slottedPieces[sIdx];
+            const slottedObj = slottedId ? game.displayedPieces.find(p => p.id === slottedId) : null;
+
+            div.className = `p-3.5 rounded-xl border-2 border-dashed cursor-pointer transition ${
+              isSelected ? 'slot-active border-[#c9a961]' : 'border-[#c9a961]/40 bg-[#1a1624]'
+            }`;
+            div.onclick = () => game.selectSlot(sIdx);
+
+            if (slottedObj) {
+              div.innerHTML = `
+                <div class="flex items-center justify-between text-[11px] text-[#c9a961] mb-1">
+                  <span>✦ 補完された記憶（${item.label}）</span>
+                  <span class="underline">クリックで選択/解除</span>
+                </div>
+                <div class="font-bold text-xs md:text-sm text-[#fff]">${slottedObj.text}</div>
+              `;
+            } else {
+              div.innerHTML = `
+                <div class="flex items-center justify-between text-xs text-[#c9a961]/90">
+                  <span class="font-bold">【 ？？？ 欠落した記憶 】</span>
+                  <span class="text-[11px] opacity-75">${item.label}</span>
+                </div>
+                <p class="text-[11px] text-[#e8dcc5]/50 mt-1">下の「記憶の断片」から正しい行動を選んで当てはめてください</p>
+              `;
+            }
+          }
+          container.appendChild(div);
+        });
+      },
+
+      renderPieces() {
+        const poolContainer = document.getElementById('pieces-pool');
+        poolContainer.innerHTML = '';
+
+        const slottedSet = new Set(Object.values(game.slottedPieces));
+
+        game.displayedPieces.forEach(piece => {
+          const isEliminated = game.eliminatedPieceIds.has(piece.id);
+          const isSlotted = slottedSet.has(piece.id);
+
+          const card = document.createElement('div');
+          card.className = `relative p-3 pr-8 rounded-xl border text-xs leading-snug cursor-pointer select-none transition ${
+            isEliminated
+              ? 'eliminated-piece'
+              : isSlotted
+              ? 'bg-[#c9a961]/25 border-[#c9a961] text-[#fff] font-bold'
+              : 'bg-[#0e0c12] border-[#c9a961]/25 text-[#e8dcc5]/90 hover:border-[#c9a961]/70'
+          }`;
+          card.onclick = () => game.assignPiece(piece.id);
+
+          card.innerHTML = `
+            <span>${piece.text}</span>
+            <button onclick="game.toggleEliminatePiece(event, '${piece.id}')" title="消去法メモ（×をつける）"
+              class="absolute top-2 right-2 w-5 h-5 rounded flex items-center justify-center text-[11px] border ${
+                isEliminated
+                  ? 'bg-[#9e1b1b] text-white border-[#e03e3e]'
+                  : 'bg-[#1a1722] text-[#e8dcc5]/50 border-white/10 hover:text-[#e03e3e] hover:border-[#e03e3e]/50'
+              }">
+              ✕
+            </button>
+          `;
+          poolContainer.appendChild(card);
+        });
+      },
+
+      renderRituals() {
+        const container = document.getElementById('ritual-options');
+        container.innerHTML = RITUALS.map(r => {
+          const active = game.selectedRitual === r.id;
+          return `
+            <button onclick="game.selectRitual('${r.id}')"
+              class="p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                active
+                  ? 'bg-[#c9a961]/25 border-[#c9a961] text-[#fff] shadow-[0_0_12px_rgba(201,169,97,0.2)]'
+                  : 'bg-[#0e0c12] border-[#c9a961]/20 text-[#e8dcc5]/80 hover:border-[#c9a961]/60'
+              }">
+              <div class="font-bold text-xs md:text-sm text-[#c9a961]">${r.name}</div>
+              <div class="text-[10px] text-[#e8dcc5]/65 mt-0.5">${r.cause}</div>
+            </button>
+          `;
+        }).join('');
+      },
+
+      renderDailyNews() {
+        document.getElementById('news-day-label').textContent = `第 ${game.day} 夜の記録`;
+        const list = document.getElementById('daily-news-list');
+        list.innerHTML = game.currentCase.news.map(n => `
+          <li class="flex items-start gap-2">
+            <span class="text-[#c9a961] mt-0.5">▪</span>
+            <span>${n}</span>
+          </li>
+        `).join('');
+      },
+
+      showFeedback(type, msg) {
+        const fb = document.getElementById('feedback-banner');
+        fb.classList.remove('hidden', 'border-[#e03e3e]', 'bg-[#9e1b1b]/20', 'text-[#ffb4b4]', 'border-[#c9a961]', 'bg-[#c9a961]/15', 'text-[#e8dcc5]');
+        if (type === 'error') {
+          fb.classList.add('border-[#e03e3e]', 'bg-[#9e1b1b]/20', 'text-[#ffb4b4]');
+        } else {
+          fb.classList.add('border-[#c9a961]', 'bg-[#c9a961]/15', 'text-[#e8dcc5]');
+        }
+        fb.innerText = msg;
+      },
+
+      triggerMistakeFX(loseCandle) {
+        const ws = document.getElementById('game-workspace');
+        ws.classList.remove('animate-shake');
+        void ws.offsetWidth;
+        ws.classList.add('animate-shake');
+
+        if (loseCandle) {
+          const flash = document.getElementById('flash-overlay');
+          flash.classList.remove('flash-crimson');
+          void flash.offsetWidth;
+          flash.classList.add('flash-crimson');
+        }
+      },
+
+      toggleModal(id, show) {
+        const el = document.getElementById(id);
+        if (show) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      },
+
+      switchMobileTab(tab) {
+        const obs = document.getElementById('panel-observation');
+        const tl = document.getElementById('panel-timeline');
+        const rec = document.getElementById('panel-records');
+        const btnInv = document.getElementById('tab-btn-investigate');
+        const btnRec = document.getElementById('tab-btn-records');
+
+        if (tab === 'investigate') {
+          obs.classList.remove('hidden');
+          tl.classList.remove('hidden');
+          rec.classList.add('hidden');
+          btnInv.className = 'flex-1 py-3 text-center border-b-2 border-[#c9a961] text-[#c9a961]';
+          btnRec.className = 'flex-1 py-3 text-center border-b-2 border-transparent text-[#e8dcc5]/60';
+        } else {
+          obs.classList.add('hidden');
+          tl.classList.add('hidden');
+          rec.classList.remove('hidden');
+          rec.classList.add('flex');
+          btnRec.className = 'flex-1 py-3 text-center border-b-2 border-[#c9a961] text-[#c9a961]';
+          btnInv.className = 'flex-1 py-3 text-center border-b-2 border-transparent text-[#e8dcc5]/60';
+        }
+      },
+
+      switchRecordTab(sub) {
+        ['map', 'news', 'guide'].forEach(k => {
+          const btn = document.getElementById(`rec-tab-${k}`);
+          const content = document.getElementById(`record-content-${k}`);
+          if (k === sub) {
+            btn.className = 'flex-1 py-2 rounded-lg font-bold bg-[#c9a961]/20 text-[#c9a961] transition cursor-pointer';
+            content.classList.remove('hidden');
+          } else {
+            btn.className = 'flex-1 py-2 rounded-lg font-semibold text-[#e8dcc5]/60 hover:text-[#e8dcc5] transition cursor-pointer';
+            content.classList.add('hidden');
+          }
+        });
+      }
+    };
+  </script>
+</body>
+</html>
